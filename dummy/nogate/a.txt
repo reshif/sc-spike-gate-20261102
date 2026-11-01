@@ -4,7 +4,7 @@ nogate line 3
 nogate line 4
 nogate line 5
 nogate line 6
-nogate line 7
+base nearby b919a3
 nogate line 8
 nogate line 9
 nogate line 10
