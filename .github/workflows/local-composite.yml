@@ -1,0 +1,14 @@
+# Fixture for the static check only: job holds checks: write and runs a local composite action.
+name: local-composite
+on:
+  pull_request:
+    paths: ['dummy/composite/**']
+permissions:
+  contents: read
+  checks: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup

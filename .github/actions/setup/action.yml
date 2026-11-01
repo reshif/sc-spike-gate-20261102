@@ -1,0 +1,7 @@
+name: setup
+description: dummy local composite action
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: echo "dummy composite"

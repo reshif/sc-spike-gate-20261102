@@ -1,0 +1,14 @@
+# Fixture: runs no repo code, holds checks: write, puts a PR title straight into a shell line.
+name: inject
+on:
+  pull_request:
+    paths: ['dummy/inject/**']
+permissions:
+  checks: write
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - run: echo "title is ${{ github.event.pull_request.title }}"

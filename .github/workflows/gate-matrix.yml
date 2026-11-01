@@ -1,0 +1,15 @@
+# Fixture: job name from a matrix.
+name: gate-matrix
+on:
+  pull_request:
+    paths: ['dummy/matrix/**']
+permissions: {}
+jobs:
+  m:
+    name: ${{ matrix.n }}
+    strategy:
+      matrix:
+        n: [gate]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "matrix name"

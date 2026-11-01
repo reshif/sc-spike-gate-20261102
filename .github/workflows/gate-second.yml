@@ -1,0 +1,11 @@
+# Fixture: a same-named job in another workflow.
+name: gate-second
+on:
+  pull_request:
+    paths: ['dummy/second/**']
+permissions: {}
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "same-named job always passes"

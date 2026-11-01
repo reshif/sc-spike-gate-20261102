@@ -1,0 +1,11 @@
+# Fixture for the static check only: reusable workflow.
+name: reusable-inner
+on:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  inner:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo inner

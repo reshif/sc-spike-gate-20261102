@@ -1,0 +1,14 @@
+# Fixture: an existing job that runs repo code and holds checks: write. The static check must reject this.
+name: forge-existing
+on:
+  pull_request:
+    paths: ['dummy/forge-script/**']
+permissions:
+  contents: read
+  checks: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash scripts/build.sh

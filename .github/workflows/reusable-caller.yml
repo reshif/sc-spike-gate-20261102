@@ -1,0 +1,11 @@
+# Fixture for the static check only: caller holds checks: write and calls a repo-local reusable workflow.
+name: reusable-caller
+on:
+  pull_request:
+    paths: ['dummy/reuse/**']
+permissions:
+  contents: read
+  checks: write
+jobs:
+  call:
+    uses: ./.github/workflows/reusable-inner.yml

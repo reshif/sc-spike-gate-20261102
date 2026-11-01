@@ -1,0 +1,14 @@
+# Does a dispatch from an unprotected branch get into a 'protected branches only' environment on a rulesets-only repo?
+name: env-dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      tag: {type: string, default: none}
+run-name: env-dispatch ${{ inputs.tag }}
+permissions: {}
+jobs:
+  into-protected:
+    runs-on: ubuntu-latest
+    environment: protected-only
+    steps:
+      - run: echo "ENVPROT ref=$GITHUB_REF"

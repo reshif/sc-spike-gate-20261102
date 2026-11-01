@@ -1,0 +1,11 @@
+# Fixture: no permissions key at all. Token rights come from the repo default.
+name: forge-undeclared
+on:
+  pull_request:
+    paths: ['dummy/forge-undeclared/**']
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash scripts/build.sh

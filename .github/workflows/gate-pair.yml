@@ -1,0 +1,30 @@
+# Fixture: two jobs with the same check name in one workflow. Order set by a sleep on head.
+name: gate-pair
+on:
+  pull_request:
+    paths: ['dummy/pair-failfirst/**', 'dummy/pair-passfirst/**']
+permissions: {}
+jobs:
+  first:
+    name: gate
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          HR: ${{ github.head_ref }}
+        run: |
+          case "$HR" in
+            *failfirst*) echo "failing first"; exit 1 ;;
+            *) echo "passing first" ;;
+          esac
+  second:
+    name: gate
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          HR: ${{ github.head_ref }}
+        run: |
+          sleep 45
+          case "$HR" in
+            *failfirst*) echo "passing second" ;;
+            *) echo "failing second"; exit 1 ;;
+          esac

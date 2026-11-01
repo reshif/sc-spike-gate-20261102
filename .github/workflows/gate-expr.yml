@@ -1,0 +1,12 @@
+# Fixture: job name assembled by an expression.
+name: gate-expr
+on:
+  pull_request:
+    paths: ['dummy/expr/**']
+permissions: {}
+jobs:
+  notgate:
+    name: ${{ format('ga{0}', 'te') }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "dynamic name"

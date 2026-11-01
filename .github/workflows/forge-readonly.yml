@@ -1,0 +1,13 @@
+# Fixture: same job, no write permission. The static check should accept it and a forgery should get a 403.
+name: forge-readonly
+on:
+  pull_request:
+    paths: ['dummy/forge-ro/**']
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash scripts/build.sh

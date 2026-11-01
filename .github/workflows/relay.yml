@@ -1,0 +1,23 @@
+# Second half: runs from the default branch, runs no repo code, posts gate on the PR head with GITHUB_TOKEN.
+name: relay
+on:
+  workflow_run:
+    workflows: [pr-run]
+    types: [completed]
+permissions: {}
+jobs:
+  judge:
+    runs-on: ubuntu-latest
+    environment: judge
+    permissions:
+      checks: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEADSHA: ${{ github.event.workflow_run.head_sha }}
+          CONCL: ${{ github.event.workflow_run.conclusion }}
+          R: ${{ github.repository }}
+          DUMMY: ${{ secrets.JUDGE_DUMMY }}
+        run: |
+          echo "RELAY ref=$GITHUB_REF sha=$GITHUB_SHA head=$HEADSHA concl=$CONCL env_secret_present=$([ -n "$DUMMY" ] && echo yes || echo no)"
+          gh api -X POST "repos/$R/check-runs" -f name=gate -f head_sha="$HEADSHA" -f status=completed -f conclusion="$CONCL" --jq '"CHECK id=\(.id) app=\(.app.slug)"'

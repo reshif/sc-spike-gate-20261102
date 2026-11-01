@@ -1,0 +1,19 @@
+# Does a pull_request job get into an environment limited to main?
+name: env-on-pr
+on:
+  pull_request:
+    paths: ['dummy/envtest/**']
+permissions: {}
+jobs:
+  into-judge:
+    runs-on: ubuntu-latest
+    environment: judge
+    steps:
+      - env:
+          DUMMY: ${{ secrets.JUDGE_DUMMY }}
+        run: echo "ENVPR ref=$GITHUB_REF secret_present=$([ -n "$DUMMY" ] && echo yes || echo no)"
+  into-protected:
+    runs-on: ubuntu-latest
+    environment: protected-only
+    steps:
+      - run: echo "ENVPROT ref=$GITHUB_REF"

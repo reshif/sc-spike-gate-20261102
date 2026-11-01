@@ -1,0 +1,15 @@
+# First half of the workflow_run pattern: a run job on PR code, no write rights.
+name: pr-run
+on:
+  pull_request:
+    paths: ['dummy/relay/**']
+permissions:
+  contents: read
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          echo "TESTED sha=$(git rev-parse HEAD) tree=$(git rev-parse 'HEAD^{tree}')"
+          sleep 60

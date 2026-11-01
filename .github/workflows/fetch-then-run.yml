@@ -1,0 +1,16 @@
+# Fixture for the static check only: no checkout, but the shell pulls a script from the PR head and runs it.
+name: fetch-then-run
+on:
+  pull_request:
+    paths: ['dummy/fetchrun/**']
+permissions:
+  checks: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEADSHA: ${{ github.event.pull_request.head.sha }}
+          R: ${{ github.repository }}
+        run: curl -fsSL "https://raw.githubusercontent.com/$R/$HEADSHA/scripts/build.sh" | bash
