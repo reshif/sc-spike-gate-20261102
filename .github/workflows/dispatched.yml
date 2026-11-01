@@ -1,0 +1,16 @@
+name: dispatched
+on:
+  repository_dispatch:
+    types: [spike]
+  workflow_dispatch:
+    inputs:
+      tag:
+        type: string
+        default: none
+run-name: dispatched ${{ github.event_name }} ${{ github.event.client_payload.tag || inputs.tag }}
+permissions: {}
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "DISPATCHRUN event=$GITHUB_EVENT_NAME actor=$GITHUB_ACTOR"

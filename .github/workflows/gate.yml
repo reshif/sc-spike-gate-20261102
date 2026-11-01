@@ -1,0 +1,22 @@
+name: gate-wf
+on:
+  pull_request:
+    paths: ['dummy/gated/**']
+permissions: {}
+jobs:
+  gate:
+    if: ${{ !startsWith(github.head_ref, 'skipgate/') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: record
+        env:
+          HEADSHA: ${{ github.event.pull_request.head.sha }}
+          BASESHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          echo "TESTED sha=$(git rev-parse HEAD) tree=$(git rev-parse 'HEAD^{tree}') ref=$GITHUB_REF headsha=$HEADSHA basesha=$BASESHA"
+          if [ -f dummy/gated/SLEEP ]; then sleep "$(cat dummy/gated/SLEEP)"; fi
+          if [ -f dummy/gated/FAIL ]; then echo "gate: fail requested by file"; exit 1; fi
+          echo "gate ok"

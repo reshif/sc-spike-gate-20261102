@@ -1,0 +1,13 @@
+name: pr-closed
+on:
+  pull_request:
+    types: [closed]
+permissions: {}
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          MERGED: ${{ github.event.pull_request.merged }}
+          MERGEDBY: ${{ github.event.pull_request.merged_by.login }}
+        run: echo "CLOSEDRUN merged=$MERGED merged_by=$MERGEDBY actor=$GITHUB_ACTOR"

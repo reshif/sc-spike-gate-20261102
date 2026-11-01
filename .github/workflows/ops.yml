@@ -1,0 +1,64 @@
+name: ops
+on:
+  workflow_dispatch:
+    inputs:
+      op: {type: string, required: true}
+      pr: {type: string, default: ''}
+      sha: {type: string, default: ''}
+      arg: {type: string, default: ''}
+      tag: {type: string, required: true}
+run-name: ops ${{ inputs.op }} ${{ inputs.tag }}
+permissions:
+  checks: write
+  statuses: write
+  contents: write
+  pull-requests: write
+  actions: write
+jobs:
+  op:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OP: ${{ inputs.op }}
+          PR: ${{ inputs.pr }}
+          SHA: ${{ inputs.sha }}
+          ARG: ${{ inputs.arg }}
+          TAG: ${{ inputs.tag }}
+          R: ${{ github.repository }}
+        run: |
+          set -u
+          echo "OP op=$OP pr=$PR sha=$SHA arg=$ARG"
+          case "$OP" in
+            check)  gh api -X POST "repos/$R/check-runs" -f name=gate -f head_sha="$SHA" -f status=completed -f conclusion="$ARG" --jq '"CHECK id=\(.id) app=\(.app.slug) appid=\(.app.id) concl=\(.conclusion)"' ;;
+            status) gh api -X POST "repos/$R/statuses/$SHA" -f context=gate -f state="$ARG" --jq '"STATUS id=\(.id) creator=\(.creator.login) state=\(.state)"' ;;
+            arm)    gh pr merge "$PR" -R "$R" --auto "--$ARG" ;;
+            merge)  gh pr merge "$PR" -R "$R" "--$ARG" ;;
+            approve) gh pr review "$PR" -R "$R" --approve -b "ops approve" ;;
+            dismiss) gh api -X PUT "repos/$R/pulls/$PR/reviews/$ARG/dismissals" -f message="ops dismiss" --jq '"DISMISSED state=\(.state)"' ;;
+            openpr) gh pr create -R "$R" --head "$ARG" --base main --title "$TAG" --body "Spike PR opened by GITHUB_TOKEN. Dummy content." ;;
+            update) gh api -X PUT "repos/$R/pulls/$PR/update-branch" --jq .message ;;
+            repo-dispatch) gh api -X POST "repos/$R/dispatches" -f event_type=spike -F "client_payload[tag]=$TAG" ;;
+            wf-dispatch) gh api -X POST "repos/$R/actions/workflows/dispatched.yml/dispatches" -f ref=main -f "inputs[tag]=$TAG" ;;
+            ledger)
+              git init -q . && git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/$R.git"
+              git fetch -q --depth=1 origin sc-ledger && git checkout -q -b sc-ledger FETCH_HEAD
+              git config user.name github-actions[bot]; git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+              mkdir -p trusted; echo "$TAG" >> trusted/log.txt; git add trusted
+              git commit -q -m "trusted append $TAG [skip ci]"
+              git push origin sc-ledger ;;
+            ledger-force)
+              git init -q . && git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/$R.git"
+              git fetch -q --depth=2 origin sc-ledger && git checkout -q -b sc-ledger FETCH_HEAD
+              git reset -q --hard HEAD~1
+              git push --force origin sc-ledger ;;
+            ledger-delete)
+              gh api -X DELETE "repos/$R/git/refs/heads/sc-ledger" ;;
+            push-branch)
+              git init -q . && git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/$R.git"
+              git fetch -q --depth=1 origin "$ARG" && git checkout -q -b w FETCH_HEAD
+              git config user.name github-actions[bot]; git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+              git commit -q --allow-empty -m "bot empty push $TAG"
+              git push origin "w:$ARG" ;;
+            *) echo "unknown op"; exit 2 ;;
+          esac

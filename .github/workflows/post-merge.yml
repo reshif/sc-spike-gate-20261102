@@ -1,0 +1,13 @@
+name: post-merge
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          PUSHER: ${{ github.event.pusher.name }}
+        run: echo "PUSHRUN sha=$GITHUB_SHA actor=$GITHUB_ACTOR triggering=$GITHUB_TRIGGERING_ACTOR pusher=$PUSHER"
